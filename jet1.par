@@ -1,7 +1,7 @@
 ! $AMRVAC_DIR/setup.pl -d=2
 
 &filelist
-  base_filename='output/jetdenser_center'
+  base_filename='output/bipolar'
   autoconvert      = T
   convert_type     = 'vtuBmpi'
   saveprim         = T
@@ -21,8 +21,9 @@
 
  &methodlist
    time_stepper = 'threestep'
-   flux_scheme     = 20*'tvdlf'
-   limiter         = 20*'cada3'
+   time_integrator = 'ssprk3'
+   flux_scheme     = 20*'hll'
+   limiter         = 20*'koren'
 /
 
 &boundlist
@@ -30,9 +31,10 @@
   typeboundary_max1 = 4*'cont'
   typeboundary_min2 = 4*'cont'
   typeboundary_max2 = 4*'cont'
+  internalboundary=T
 /
  &meshlist
-   refine_max_level   = 5
+   refine_max_level   = 7
    domain_nx1         = 40
    domain_nx2         = 60
    block_nx1          = 10
