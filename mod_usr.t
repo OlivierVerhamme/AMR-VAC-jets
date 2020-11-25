@@ -17,7 +17,7 @@ contains
 
     unit_length = 50*1.0d3*3.0857d18 !50 kilo parsec in cm
     unit_numberdensity = 1.0d-2 ! cm^-3
-    unit_velocity = unit_length/(50d6*31 556 926)
+    unit_velocity = unit_length/(50d6*31556926.0d0)
 
     call hd_activate()
   end subroutine usr_init
@@ -32,7 +32,7 @@ contains
     rho_0=1.0d0
     rhoj=0.01d0
     k = 1.38d-23
-    mu= 0.6
+    mu= 0.6d0
     massproton = 1.67*10d-24
     !g_cor = 2d5!6.67408d-11
     !g_cor = 2.74d4*unit_length/(unit_velocity**2)
@@ -46,9 +46,10 @@ contains
     if(iprob==3)then
         eta=0.1d0
     endif
-    vj=100.d0
+    vj=50.d0
 
     Print *,'unit_time: ', unit_time
+    Print *,'unit_mass: ', unit_mass
 
   end subroutine initglobaldata_usr
 
@@ -168,11 +169,14 @@ contains
 
     !call hd_to_primitive(ixI^L,ixIInt^L,w,x)
     call hd_get_pthermal(wlocal,x,ixI^L,ixO^L,pth)
-    t = pth(ixImax1/2, ixImax2/2)/w(ixImax1/2,ixImax2/2,rho_)
-    g_cor = -3.0d0*beta*t
-!/(mu*massproton*2)
+    !t = pth(ixImax1/2, ixImax2/2)/w(ixImax1/2,ixImax2/2,rho_)
+    t = 1/rho_0
 
+
+    g_cor = -3.0d0*beta*t/2.0d0
     ggrid(ixO^S)=g_cor*((dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)/2.0d0)/(1+(x(ixO^S,1)**2+x(ixO^S,2)**2)/4.0d0))
+    !g_cor = -3.0d0*beta*t*unit_temperature/(mu*massproton*2.0d0*unit_length)
+    !ggrid(ixO^S)=g_cor*((dsqrt((x(ixO^S,1)*unit_length)**2+(x(ixO^S,2)*unit_length)**2)/(2.0d0*unit_length))/(1+((x(ixO^S,1)*unit_length)**2+(x(ixO^S,2)*unit_length)**2)/((2.0d0*unit_length)**2)))*(unit_time**2/unit_length)
   end subroutine getggrav
 
   subroutine specialvar_output(ixI^L,ixO^L,w,x,normconv)
