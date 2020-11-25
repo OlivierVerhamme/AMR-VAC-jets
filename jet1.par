@@ -46,5 +46,5 @@
   courantpar       = 0.2d0
  /
  &hd_list
-  hd_gravity=.true
+  hd_gravity=.true.
  /
