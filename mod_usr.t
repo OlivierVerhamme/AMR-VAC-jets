@@ -27,7 +27,7 @@ contains
     !vc_mu=1.0/Re
     ! Physical parameters
     hd_gamma=5.0d0/3.0d0
-    RR = 0.05d0
+    RR = 8*3.26d-3
     beta=0.5d0
     rho_0=1.0d0
     rhoj=0.01d0
@@ -101,7 +101,7 @@ contains
     R(ixO^S)=dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)
     if (any(R(ixO^S) <= 2.0d0*RR)) refine=1
 
-    call gradient
+
   end subroutine specialrefine_grid
 
   subroutine no_vel(level,qt,ixI^L,ixO^L,w,x)
@@ -128,7 +128,7 @@ contains
         !w(ixO^S,p_)    =p0
         w(ixO^S,e_)=one/(hd_gamma-one)+0.5d0*rhoj*vj**2.0d0
     end where
-    where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0).and.(qt<0.002))
+    where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0).and.(qt<1.0d0))
         w(ixO^S,mom(1)) = rhoj*vj*costhe(ixO^S)
         w(ixO^S,mom(2)) = rhoj*vj*sinthe(ixO^S)
         w(ixO^S,rho_)  =rhoj
