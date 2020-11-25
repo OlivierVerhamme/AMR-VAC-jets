@@ -141,16 +141,26 @@ contains
     gravity_field=0.d0
     costhe(ixO^S)=x(ixO^S,1)/rad(ixO^S)
     sinthe(ixO^S)=x(ixO^S,2)/rad(ixO^S)
-    call getggrav(ggrid,ixI^L,ixO^L,x)
+    call getggrav(ggrid,ixI^L,ixO^L,wCT,x)
     gravity_field(ixO^S,1)=-ggrid(ixO^S)*costhe(ixO^S)
     gravity_field(ixO^S,2)=-ggrid(ixO^S)*sinthe(ixO^S)
-    gravity_field(ixO^S,2)=g_cor
+    !gravity_field(ixO^S,2)=g_cor
   end subroutine gravity
 
-  subroutine getggrav(ggrid,ixI^L,ixO^L,x)
+  subroutine getggrav(ggrid,ixI^L,ixO^L,w,x)
     integer, intent(in)             :: ixI^L, ixO^L
     double precision, intent(in)    :: x(ixI^S,1:ndim)
     double precision, intent(out)   :: ggrid(ixI^S)
+    double precision                :: wlocal(ixI^S,1:nw)
+    double precision                :: pth(ixI^S)
+    double precision                :: w(ixI^S,nw)
+    double precision                :: T(ixI^S)
+
+    wlocal(ixI^S,1:nw)=w(ixI^S,1:nw)
+    ! output temperature
+    call hd_get_pthermal(wlocal,x,ixI^L,ixO^L,pth)
+    T(ixO^S)=pth(ixO^S)/w(ixO^S,rho_)
+
     ggrid(ixO^S)=g_cor*(1/(x(ixO^S,1)**2+x(ixO^S,2)**2))
   end subroutine getggrav
 
