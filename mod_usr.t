@@ -46,7 +46,7 @@ contains
     if(iprob==3)then
         eta=0.1d0
     endif
-    vj=50.d0
+    vj=100.d0
 
     Print *,'unit_time: ', unit_time
 
