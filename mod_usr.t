@@ -1,7 +1,7 @@
 module mod_usr
   use mod_hd
   implicit none
-  double precision :: rhoj, eta, vj, Re,Ma,RR,rho_0,beta,g_cor
+  double precision :: rhoj, eta, vj, Re,Ma,RR,rho_0,beta,k,mu,massproton
 contains
   subroutine usr_init()
     usr_set_parameters=> initglobaldata_usr
@@ -31,6 +31,12 @@ contains
     beta=0.5d0
     rho_0=1.0d0
     rhoj=0.01d0
+    k = 1.38d-23
+    mu= 0.6
+    massproton = 1.67*10d-24
+    !g_cor = 2d5!6.67408d-11
+    !g_cor = 2.74d4*unit_length/(unit_velocity**2)
+
     if(iprob==1)then
         eta=10.d0
     endif
@@ -53,14 +59,14 @@ contains
     double precision, intent(inout) :: w(ixI^S,1:nw)
     double precision :: rad(ixI^S),costhe(ixI^S),sinthe(ixI^S),cos2theta(ixI^S),rad2(ixI^S),RR2
     integer :: idims
-    
+
     RR2=RR**2
     rad2(ixO^S)=x(ixO^S,1)**2+x(ixO^S,2)**2
     rad(ixO^S)=dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)
     costhe(ixO^S)=x(ixO^S,1)/rad(ixO^S)
     sinthe(ixO^S)=x(ixO^S,2)/rad(ixO^S)
     cos2theta(ixO^S)=2.0d0*costhe(ixO^S)**2-1.0d0
-    
+
     !w(ix^S,rho_)  =rhoj
     w(ixO^S,rho_) = rho_0*(1.0d0+((rad(ixO^S)/RR)**2.0d0)**(-3.0d0*beta/2.0d0))
     w(ixO^S,mom(1))=0.0d0
@@ -94,6 +100,8 @@ contains
     ! always refine the jet inlet zone
     R(ixO^S)=dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)
     if (any(R(ixO^S) <= 2.0d0*RR)) refine=1
+
+    call gradient
   end subroutine specialrefine_grid
 
   subroutine no_vel(level,qt,ixI^L,ixO^L,w,x)
@@ -112,7 +120,7 @@ contains
         w(ixO^S,mom(2)) = 0.0d0
         !w(ixO^S,p_)    =p0
         w(ixO^S,e_)=1.0d0/(hd_gamma-1)
-    endwhere 
+    endwhere
     where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0))
         w(ixO^S,mom(1)) = 0.0d0
         w(ixO^S,mom(2)) = 0.0d0
@@ -136,32 +144,35 @@ contains
     double precision, intent(in)    :: wCT(ixI^S,1:nw)
     double precision, intent(out)   :: gravity_field(ixI^S,ndim)
     double precision                :: ggrid(ixI^S),costhe(ixI^S),sinthe(ixI^S),rad(ixI^S)
-    
+
     rad(ixO^S)=dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)
     gravity_field=0.d0
     costhe(ixO^S)=x(ixO^S,1)/rad(ixO^S)
     sinthe(ixO^S)=x(ixO^S,2)/rad(ixO^S)
-    call getggrav(ggrid,ixI^L,ixO^L,wCT,x)
+    call getggrav(ggrid,ixI^L,ixO^L,x,wCT)
     gravity_field(ixO^S,1)=-ggrid(ixO^S)*costhe(ixO^S)
     gravity_field(ixO^S,2)=-ggrid(ixO^S)*sinthe(ixO^S)
     !gravity_field(ixO^S,2)=g_cor
   end subroutine gravity
 
-  subroutine getggrav(ggrid,ixI^L,ixO^L,w,x)
+  subroutine getggrav(ggrid,ixI^L,ixO^L,x,w)
     integer, intent(in)             :: ixI^L, ixO^L
     double precision, intent(in)    :: x(ixI^S,1:ndim)
     double precision, intent(out)   :: ggrid(ixI^S)
-    double precision                :: wlocal(ixI^S,1:nw)
-    double precision                :: pth(ixI^S)
-    double precision                :: w(ixI^S,nw)
-    double precision                :: T(ixI^S)
+    double precision                   :: w(ixI^S,nw+nwauxio)
+    double precision :: wlocal(1:nw)
+    double precision :: pth(ixI^S)
+    double precision :: t
+    double precision :: g_cor
+    wlocal(1:nw)=w(ixImax1 /2, ixImax2 /2,1:nw)
 
-    wlocal(ixI^S,1:nw)=w(ixI^S,1:nw)
-    ! output temperature
+    !call hd_to_primitive(ixI^L,ixIInt^L,w,x)
     call hd_get_pthermal(wlocal,x,ixI^L,ixO^L,pth)
-    T(ixO^S)=pth(ixO^S)/w(ixO^S,rho_)
+    t = pth(ixImax1/2, ixImax2/2)/w(ixImax1/2,ixImax2/2,rho_)
+    g_cor = -3.0d0*beta*t
+!/(mu*massproton*2)
 
-    ggrid(ixO^S)=g_cor*(1/(x(ixO^S,1)**2+x(ixO^S,2)**2))
+    ggrid(ixO^S)=g_cor*((dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)/2.0d0)/(1+(x(ixO^S,1)**2+x(ixO^S,2)**2)/4.0d0))
   end subroutine getggrav
 
   subroutine specialvar_output(ixI^L,ixO^L,w,x,normconv)
@@ -230,5 +241,5 @@ contains
     varnames='Te Mach omega Schlier'
 
   end subroutine specialvarnames_output
-  
+
 end module mod_usr
