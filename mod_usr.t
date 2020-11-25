@@ -17,7 +17,7 @@ contains
 
     unit_length = 50*1.0d3*3.0857d18 !50 kilo parsec in cm
     unit_numberdensity = 1.0d-2 ! cm^-3
-    unit_velocity = unit_length/(50d6)
+    unit_velocity = unit_length/(50d6*31 556 926)
 
     call hd_activate()
   end subroutine usr_init
