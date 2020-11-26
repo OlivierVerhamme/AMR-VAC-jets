@@ -1,6 +1,6 @@
 ! $AMRVAC_DIR/setup.pl -d=2
 &filelist
-  base_filename='bipjet_morevars'
+  base_filename='output/bipjet_morevars'
   autoconvert      = T
   convert_type     = 'vtuBmpi'
   saveprim         = T
@@ -40,12 +40,16 @@
    xprobmin2       =  -15.0d0
    xprobmax2       =  15.0d0
    iprob = 1
-   w_refine_weight(5)=0.5d0
-   w_refine_weight(6)=0.5d0
+   w_refine_weight(1)=1.0d0 / 6.0d0
+   w_refine_weight(2)=1.0d0 / 6.0d0
+   w_refine_weight(3)=1.0d0 / 6.0d0
+   w_refine_weight(4)=1.0d0 / 6.0d0
+   w_refine_weight(5)=1.0d0 / 6.0d0
+   w_refine_weight(6)=1.0d0 / 6.0d0
  /
  &paramlist
   slowsteps        = 100
-  courantpar       = 0.2d0
+  courantpar       = 0.1d0
  /
  &hd_list
   hd_gravity=.true.
