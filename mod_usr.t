@@ -241,8 +241,7 @@ contains
     w(ixO^S,nw+1)=pth(ixO^S)/w(ixO^S,rho_)
 
     ! output Mach number V/c_s
-    w(ixO^S,nw+2)=dsqrt(wlocal(ixO^S,mom(1))**2+wlocal(ixO^S,mom(2))**2) &
-                  /dsqrt(hd_gamma*pth(ixO^S)*w(ixO^S,rho_))
+    w(ixO^S,nw+2)=dsqrt(wlocal(ixO^S,mom(1))**2+wlocal(ixO^S,mom(2))**2) /dsqrt(hd_gamma*pth(ixO^S)*w(ixO^S,rho_))
 
     ! output vorticity
     vrot(ixO^S)=zero
