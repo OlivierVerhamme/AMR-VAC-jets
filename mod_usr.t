@@ -103,8 +103,8 @@ contains
     if (any(R(ixO^S) <= 2.0d0*RR)) refine=1
 
   end subroutine specialrefine_grid
-  
-  
+
+
   subroutine laplacian_for_errest(ixI^L,ixO^L,iflag,w,x,var)
       integer, intent(in)           :: ixI^L,ixO^L,iflag
       double precision, intent(in)  :: x(ixI^S,1:ndim)
@@ -205,11 +205,14 @@ contains
 
     !call hd_to_primitive(ixI^L,ixIInt^L,w,x)
     call hd_get_pthermal(wlocal,x,ixI^L,ixO^L,pth)
-    t = pth(ixImax1/2, ixImax2/2)/w(ixImax1/2,ixImax2/2,rho_)
-    g_cor = -3.0d0*beta*t
-!/(mu*massproton*2)
+    !t = pth(ixImax1/2, ixImax2/2)/w(ixImax1/2,ixImax2/2,rho_)
+    t = 1/rho_0
 
+
+    g_cor = -3.0d0*beta*t/2.0d0
     ggrid(ixO^S)=g_cor*((dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)/2.0d0)/(1+(x(ixO^S,1)**2+x(ixO^S,2)**2)/4.0d0))
+    !g_cor = -3.0d0*beta*t*unit_temperature/(mu*massproton*2.0d0*unit_length)
+    !ggrid(ixO^S)=g_cor*((dsqrt((x(ixO^S,1)*unit_length)**2+(x(ixO^S,2)*unit_length)**2)/(2.0d0*unit_length))/(1+((x(ixO^S,1)*unit_length)**2+(x(ixO^S,2)*unit_length)**2)/((2.0d0*unit_length)**2)))*(unit_time**2/unit_length)
   end subroutine getggrav
 
   subroutine specialvar_output(ixI^L,ixO^L,w,x,normconv)
@@ -218,7 +221,7 @@ contains
   ! these auxiliary values need to be stored in the nw+1:nw+nwauxio slots
   ! the array normconv can be filled in the (nw+1:nw+nwauxio) range with
   ! corresponding normalization values (default value 1)
-    
+
     integer, intent(in)                :: ixI^L,ixO^L
     double precision, intent(in)       :: x(ixI^S,1:ndim)
     double precision                   :: w(ixI^S,nw+nwauxio)
