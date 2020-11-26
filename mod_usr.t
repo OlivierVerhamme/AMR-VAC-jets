@@ -9,6 +9,7 @@ contains
     usr_internal_bc   => no_vel
     !usr_special_bc    => specialbound_usr
     usr_refine_grid   => specialrefine_grid
+    usr_var_for_errest => laplacian_for_errest
     usr_gravity      => gravity
     usr_aux_output     => specialvar_output
     usr_add_aux_names  => specialvarnames_output
@@ -17,7 +18,7 @@ contains
 
     unit_length = 50*1.0d3*3.0857d18 !50 kilo parsec in cm
     unit_numberdensity = 1.0d-2 ! cm^-3
-    unit_velocity = unit_length/(50d6*31 556 926)
+    unit_velocity = unit_length/(50d6*31556926) ! now time in seconds!
 
     call hd_activate()
   end subroutine usr_init
@@ -101,8 +102,50 @@ contains
     R(ixO^S)=dsqrt(x(ixO^S,1)**2+x(ixO^S,2)**2)
     if (any(R(ixO^S) <= 2.0d0*RR)) refine=1
 
-
   end subroutine specialrefine_grid
+  
+  
+  subroutine laplacian_for_errest(ixI^L,ixO^L,iflag,w,x,var)
+    integer, intent(in)           :: ixI^L,ixO^L,iflag
+    double precision, intent(in)  :: x(ixI^S,1:ndim)
+    double precision, intent(in)  :: w(ixI^S,1:nw)
+    double precision, intent(out) :: var(ixI^S)
+    double precision :: wlocal(ixI^S,1:nw)
+    integer :: idir
+    double precision :: laplacianpx(ixI^S), laplacianrhox(ixI^S), laplacianpy(ixI^S), laplacianrhoy(ixI^S)
+    double precision :: laplacianp(ixI^S), laplacianrho(ixI^S)
+    double precision :: lapl(ixI^S, 1:2)
+
+    !calculate the laplacian for p or rho, or even both p and rho and set the var(ixI^S) to the larger value of the two
+
+    wlocal(ixO^S,1:nw) = w(ixO^S,1:nw)
+    call hd_to_primitive(ixI^L,ixO^L,wlocal,x)
+
+    idir = 1 ! in the x-direction
+    call gradient(wlocal(ixO^S, p_), ixI^L, ixO^L, idir, laplacianpx(ixO^S))
+    call gradient(laplacianpx(ixO^S), ixI^L, ixO^L, idir, laplacianpx(ixO^S))
+
+    call gradient(wlocal(ixO^S, rho_), ixI^L, ixO^L, idir, laplacianrhox(ixO^S))
+    call gradient(laplacianrhox(ixO^S), ixI^L, ixO^L, idir, laplacianrhox(ixO^S))
+
+    idir = 2 ! in the y-direction
+    call gradient(wlocal(ixO^S, p_), ixI^L, ixO^L, idir, laplacianpy(ixO^S))
+    call gradient(laplacianpy(ixO^S), ixI^L, ixO^L, idir, laplacianpy(ixO^S))
+
+    call gradient(wlocal(ixO^S, rho_), ixI^L, ixO^L, idir, laplacianrhoy(ixO^S))
+    call gradient(laplacianrhoy(ixO^S), ixI^L, ixO^L, idir, laplacianrhoy(ixO^S))
+
+    laplacianp(ixO^S) = laplacianpx(ixO^S)+laplacianpy(ixO^S)
+    laplacianrho(ixO^S) = laplacianrhox(ixO^S)+laplacianrhoy(ixO^S)
+    
+    lapl(ixI^S, 1) = laplacianp(ixO^S)
+    lapl(ixI^S, 2) = laplacianrho(ixO^S)
+
+    var(ixI^S)= maxval(lapl, dim=3)  ! Check if the maxval dimension is well defined.
+  
+    call hd_to_conserved(ixI^L,ixO^L,wlocal,x)
+  end subroutine laplacian_for_errest
+
 
   subroutine no_vel(level,qt,ixI^L,ixO^L,w,x)
     integer, intent(in) :: ixI^L,ixO^L,level
