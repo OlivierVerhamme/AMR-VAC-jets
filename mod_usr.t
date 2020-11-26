@@ -108,7 +108,7 @@ contains
   subroutine laplacian_for_errest(ixI^L,ixO^L,iflag,w,x,var)
       integer, intent(in)           :: ixI^L,ixO^L,iflag
       double precision, intent(in)  :: x(ixI^S,1:ndim)
-      double precision, intent(inout)  :: w(ixI^S,1:nw)
+      double precision, intent(in)  :: w(ixI^S,1:nw)
       double precision, intent(out) :: var(ixI^S)
       double precision :: wlocal(ixI^S,1:nw)
       integer :: idir
