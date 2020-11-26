@@ -224,7 +224,7 @@ contains
   ! these auxiliary values need to be stored in the nw+1:nw+nwauxio slots
   ! the array normconv can be filled in the (nw+1:nw+nwauxio) range with
   ! corresponding normalization values (default value 1)
-    use mod_radiative_cooling
+    
     integer, intent(in)                :: ixI^L,ixO^L
     double precision, intent(in)       :: x(ixI^S,1:ndim)
     double precision                   :: w(ixI^S,nw+nwauxio)
