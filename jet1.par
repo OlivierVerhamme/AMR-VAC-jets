@@ -40,7 +40,8 @@
    xprobmin2       =  -15.0d0
    xprobmax2       =  15.0d0
    iprob = 1
-   w_refine_weight(5)=1.0d0
+   w_refine_weight(5)=0.5d0
+   w_refine_weight(6)=0.5d0
  /
  &paramlist
   slowsteps        = 100
