@@ -49,7 +49,7 @@ contains
     endif
     vj=100.d0
 
-    Print *,'unit_time: ', unit_time
+    !Print *,'unit_time: ', unit_time
 
   end subroutine initglobaldata_usr
 
