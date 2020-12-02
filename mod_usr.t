@@ -1,4 +1,4 @@
-module mod_usr
+ module mod_usr
   use mod_hd
   implicit none
   double precision :: rhoj, eta, vj, Re,Ma,RR,rho_0,beta,k,mu,massproton
@@ -47,7 +47,7 @@ contains
     if(iprob==3)then
         eta=0.1d0
     endif
-    vj=100.d0
+    vj=80.d0
 
     !Print *,'unit_time: ', unit_time
 
@@ -68,8 +68,9 @@ contains
     sinthe(ixO^S)=x(ixO^S,2)/rad(ixO^S)
     cos2theta(ixO^S)=2.0d0*costhe(ixO^S)**2-1.0d0
 
+
     !w(ix^S,rho_)  =rhoj
-    w(ixO^S,rho_) = rho_0*(1.0d0+((rad(ixO^S)/RR)**2.0d0)**(-3.0d0*beta/2.0d0))
+    w(ixO^S,rho_) = rho_0*(1.0d0+((rad(ixO^S)/2.0d0)**2.0d0)**(-3.0d0*beta/2.0d0))
     w(ixO^S,mom(1))=0.0d0
     w(ixO^S,mom(2))=0.0d0
     !w(ix^S,p_)=p0
@@ -78,7 +79,7 @@ contains
     where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0))
       w(ixO^S,mom(1))=rhoj*vj*costhe(ixO^S)
       w(ixO^S,mom(2))=rhoj*vj*sinthe(ixO^S)
-      w(ixO^S,rho_)  =rhoj
+      w(ixO^S,rho_)  =w(ixO^S,rho_) + (rhoj-w(ixO^S,rho_))*EXP(-dabs(costhe(ixO^S))/(0.259d0-dabs(costhe(ixO^S))))
       !w(ix^S,p_)    =p0
       w(ixO^S,e_)=one/(hd_gamma-one)+0.5d0*rhoj*vj**2.0d0
     end where
@@ -140,7 +141,6 @@ contains
       call hd_to_conserved(ixI^L,ixO^L,wlocal,x)
     end subroutine laplacian_for_errest
 
-
   subroutine no_vel(level,qt,ixI^L,ixO^L,w,x)
     integer, intent(in) :: ixI^L,ixO^L,level
     double precision, intent(in) :: qt
@@ -152,7 +152,7 @@ contains
     costhe(ixO^S)=x(ixO^S,1)/rad(ixO^S)
     sinthe(ixO^S)=x(ixO^S,2)/rad(ixO^S)
     where (rad(ixO^S)<RR)
-        w(ixO^S,rho_) = rho_0*(1.0d0+((rad(ixO^S)/RR)**2.0d0)**(-3.0d0*beta/2.0d0))
+        w(ixO^S,rho_) = rho_0*(1.0d0+((rad(ixO^S)/2.0d0)**2.0d0)**(-3.0d0*beta/2.0d0))
         w(ixO^S,mom(1)) = 0.0d0
         w(ixO^S,mom(2)) = 0.0d0
         !w(ixO^S,p_)    =p0
@@ -161,14 +161,14 @@ contains
     where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0))
         w(ixO^S,mom(1)) = 0.0d0
         w(ixO^S,mom(2)) = 0.0d0
-        w(ixO^S,rho_)  =rhoj
+        w(ixO^S,rho_)  =w(ixO^S,rho_) + (rhoj-w(ixO^S,rho_))*EXP(-dabs(costhe(ixO^S))/(0.259d0-dabs(costhe(ixO^S))))
         !w(ixO^S,p_)    =p0
         w(ixO^S,e_)=one/(hd_gamma-one)+0.5d0*rhoj*vj**2.0d0
     end where
     where ((rad(ixO^S)<RR) .and. (dabs(costhe(ixO^S))<0.259d0).and.(qt<1.0d0))
         w(ixO^S,mom(1)) = rhoj*vj*costhe(ixO^S)
         w(ixO^S,mom(2)) = rhoj*vj*sinthe(ixO^S)
-        w(ixO^S,rho_)  =rhoj
+        w(ixO^S,rho_)  =w(ixO^S,rho_) + (rhoj-w(ixO^S,rho_))*EXP(-dabs(costhe(ixO^S))/(0.259d0-dabs(costhe(ixO^S))))
         !w(ixO^S,p_)    =p0
         w(ixO^S,e_)=one/(hd_gamma-one)+0.5d0*rhoj*vj**2.0d0
     end where
@@ -238,7 +238,7 @@ contains
     w(ixO^S,nw+1)=pth(ixO^S)/w(ixO^S,rho_)
 
     ! output Mach number V/c_s
-    w(ixO^S,nw+2)=dsqrt(wlocal(ixO^S,mom(1))**2+wlocal(ixO^S,mom(2))**2) /dsqrt(hd_gamma*pth(ixO^S)*w(ixO^S,rho_))
+    w(ixO^S,nw+2)=dsqrt(wlocal(ixO^S,mom(1))**2+wlocal(ixO^S,mom(2))**2)/dsqrt(hd_gamma*pth(ixO^S)*w(ixO^S,rho_))
 
     ! output vorticity
     vrot(ixO^S)=zero

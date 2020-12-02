@@ -1,6 +1,6 @@
 ! $AMRVAC_DIR/setup.pl -d=2
 &filelist
-  base_filename='output/bipjet_morevars'
+  base_filename='output/new_profile'
   autoconvert      = T
   convert_type     = 'vtuBmpi'
   saveprim         = T
@@ -9,7 +9,7 @@
  &savelist
    itsave(1,1)     = 0
    itsave(1,2)     = 0
-   dtsave_dat      = 0.1d0
+   dtsave_dat      = 0.03d0
    ditsave_log     = 1000
 /
  &stoplist
@@ -19,7 +19,7 @@
  &methodlist
    time_stepper = 'threestep'
    time_integrator='ssprk3'
-   flux_scheme     = 20*'hll'
+   flux_scheme     = 20*'hllc'
    limiter         = 20*'koren'
 /
 &boundlist
@@ -40,12 +40,12 @@
    xprobmin2       =  -15.0d0
    xprobmax2       =  15.0d0
    iprob = 1
-   w_refine_weight(1)=1.0d0 / 6.0d0
-   w_refine_weight(2)=1.0d0 / 6.0d0
-   w_refine_weight(3)=1.0d0 / 6.0d0
-   w_refine_weight(4)=1.0d0 / 6.0d0
-   w_refine_weight(5)=1.0d0 / 6.0d0
-   w_refine_weight(6)=1.0d0 / 6.0d0
+   w_refine_weight(1)=1.0d0/6.0d0
+   w_refine_weight(2)=1.0d0/6.0d0
+   w_refine_weight(3)=1.0d0/6.0d0
+   w_refine_weight(4)=1.0d0/6.0d0
+   w_refine_weight(5)=1.0d0/6.0d0
+   w_refine_weight(6)=1.0d0/6.0d0
  /
  &paramlist
   slowsteps        = 100
